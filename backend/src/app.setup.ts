@@ -1,8 +1,15 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import * as compression from 'compression';
+import * as compressionModule from 'compression';
 import { json, urlencoded } from 'express';
-import helmet from 'helmet';
+import * as helmetModule from 'helmet';
+
+const compression =
+  (compressionModule as unknown as { default?: () => any }).default ??
+  (compressionModule as unknown as () => any);
+const helmet =
+  (helmetModule as unknown as { default?: () => any }).default ??
+  (helmetModule as unknown as () => any);
 import { AppModule } from './app.module';
 import {
   getAllowedCorsOrigins,
