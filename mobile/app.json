@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Herway",
+    "slug": "herway-travel-safety",
+    "version": "1.0.0",
+    "scheme": "herway",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Herway uses your location only when you choose to discover nearby services or share live location with trusted contacts."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Herway uses your camera to capture a real-time selfie for Travel Buddy and Local Guardian verification."
+        }
+      ],
+      "expo-asset",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

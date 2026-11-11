@@ -1,0 +1,696 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  TRAVELLER
+  TRAVEL_BUDDY
+  SAFE_HAVEN_PARTNER
+  ADMIN
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum AuthTokenType {
+  EMAIL_VERIFY
+  PHONE_OTP
+  PASSWORD_RESET
+}
+
+enum VerificationStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum BookingStatus {
+  REQUESTED
+  ACCEPTED
+  REJECTED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum DisputeStatus {
+  NONE
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+}
+
+enum SafetyActionType {
+  BLOCK
+  REPORT
+}
+
+enum ReportStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum TripStatus {
+  PLANNED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum CheckInStatus {
+  SCHEDULED
+  REMINDED
+  CONFIRMED
+  MISSED
+  ESCALATED
+  CANCELLED
+}
+
+enum LocationShareStatus {
+  ACTIVE
+  PAUSED
+  STOPPED
+  EXPIRED
+  REVOKED
+}
+
+enum SafeHavenCategory {
+  HOTEL
+  HOSTEL
+  HOSPITAL
+  CLINIC
+  PHARMACY
+  TOURIST_ASSISTANCE_CENTRE
+}
+
+enum SafeHavenApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum SosStatus {
+  TRIGGERED
+  ACTIVE
+  ACKNOWLEDGED
+  RESOLVED
+  FALSE_ALARM
+}
+
+enum SosDeliveryStatus {
+  SENT
+  DELIVERED
+  ACKNOWLEDGED
+  FAILED
+}
+
+enum DocumentType {
+  PASSPORT
+  VISA
+  GOVERNMENT_ID
+  TICKET
+  ACCOMMODATION
+  INSURANCE
+}
+
+enum NotificationType {
+  BOOKING_REQUEST
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  CHAT_MESSAGE
+  TRIP_REMINDER
+  CHECK_IN_REMINDER
+  CHECK_IN_ESCALATED
+  SAFE_ARRIVAL
+  LOCATION_SHARE
+  SOS_ALERT
+  VERIFICATION_UPDATE
+  SYSTEM_ANNOUNCEMENT
+}
+
+model User {
+  id                      String        @id @default(uuid())
+  supabaseAuthId          String?       @unique
+  email                   String        @unique
+  passwordHash            String?
+  fullName                String
+  phoneEncrypted          String?
+  dateOfBirth             DateTime?
+  gender                  String        @default("FEMALE")
+  bio                     String?
+  avatarUrl               String?
+  homeCity                String?
+  preferredDestinations   String[]      @default([])
+  travelPreferencesJson   Json?
+  languages               String[]      @default(["English", "Malayalam"])
+  interests               String[]      @default([])
+  roles                   UserRole[]    @default([TRAVELLER])
+  status                  AccountStatus @default(ACTIVE)
+  emailVerifiedAt         DateTime?
+  phoneVerifiedAt         DateTime?
+  consentAcceptedAt       DateTime?
+  discoverableAsTraveller Boolean       @default(true)
+  approxLatitude          Float?
+  approxLongitude         Float?
+  fcmToken                String?
+  deletedAt               DateTime?
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+
+  sessions                 UserSession[]
+  authTokens               AuthVerificationToken[]
+  notificationPreferences  NotificationPreference?
+  verificationApplications VerificationApplication[] @relation("ApplicantVerifications")
+  reviewedVerifications    VerificationApplication[] @relation("ReviewerVerifications")
+  buddyProfile             TravelBuddyProfile?
+  safeHavensOwned          SafeHaven[]
+  safeHavenReportsFiled    SafeHavenReport[]
+
+  bookingsAsTraveller      BuddyBooking[] @relation("TravellerBookings")
+  bookingsAsBuddy          BuddyBooking[] @relation("BuddyBookings")
+  sentMessages             BookingMessage[]
+  reviewsWritten           BuddyReview[]  @relation("ReviewsWritten")
+  reviewsReceived          BuddyReview[]  @relation("ReviewsReceived")
+
+  favouritesGiven          UserFavourite[] @relation("FavouritesGiven")
+  favouritesReceived       UserFavourite[] @relation("FavouritesReceived")
+  safetyActionsFiled       UserBlockReport[] @relation("SafetyReporter")
+  safetyActionsReceived    UserBlockReport[] @relation("SafetyTarget")
+
+  trips                    Trip[]
+  checkIns                 JourneyCheckIn[]
+  trustedContacts          TrustedContact[]
+  locationShares           LocationShareSession[]
+  sosIncidents             SosIncident[] @relation("UserSosIncidents")
+  documents                TravelDocument[]
+  notifications            Notification[]
+  auditLogs                AuditLog[]
+
+  @@index([homeCity])
+  @@index([discoverableAsTraveller, status])
+  @@index([deletedAt, createdAt])
+}
+
+model UserSession {
+  id               String    @id @default(uuid())
+  userId           String
+  refreshTokenHash String
+  deviceInfo       String?
+  ipAddress        String?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+}
+
+model AuthVerificationToken {
+  id        String        @id @default(uuid())
+  userId    String
+  type      AuthTokenType
+  tokenHash String
+  target    String?
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime      @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@index([tokenHash])
+}
+
+model NotificationPreference {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  bookingUpdates    Boolean  @default(true)
+  chatMessages      Boolean  @default(true)
+  tripReminders     Boolean  @default(true)
+  checkInReminders  Boolean  @default(true)
+  locationEvents    Boolean  @default(true)
+  partnerUpdates    Boolean  @default(true)
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationApplication {
+  id                String             @id @default(uuid())
+  userId            String
+  role              UserRole
+  liveSelfiePath    String?
+  idDocumentPath    String?
+  licenceReference  String?
+  ageVerified18Plus Boolean            @default(false)
+  notes             String?
+  status            VerificationStatus @default(PENDING)
+  reviewerId        String?
+  reviewNotes       String?
+  reviewedAt        DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  user     User  @relation("ApplicantVerifications", fields: [userId], references: [id], onDelete: Cascade)
+  reviewer User? @relation("ReviewerVerifications", fields: [reviewerId], references: [id])
+
+  @@index([userId, role])
+  @@index([status])
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
+model TravelBuddyProfile {
+  id                String    @id @default(uuid())
+  userId            String    @unique
+  headline          String
+  servicesOffered   String[]
+  languages         String[]
+  hourlyRateInr     Int       @default(500)
+  isAvailable       Boolean   @default(true)
+  availabilitySlots Json?
+  city              String
+  baseLatitude      Float
+  baseLongitude     Float
+  ratingAverage     Float     @default(5.0)
+  reviewCount       Int       @default(0)
+  isVerified        Boolean   @default(false)
+  verifiedAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([city, isAvailable, isVerified])
+  @@index([isVerified, isAvailable, ratingAverage, reviewCount])
+}
+
+model BuddyBooking {
+  id                        String        @id @default(uuid())
+  travellerId               String
+  buddyId                   String
+  status                    BookingStatus @default(REQUESTED)
+  startAt                   DateTime
+  endAt                     DateTime
+  activitySummary           String
+  meetingPointName          String?
+  meetingPointAddress       String?
+  meetingPointLat           Float?
+  meetingPointLng           Float?
+  isPublicMeetingPoint      Boolean       @default(true)
+  travellerConfirmed        Boolean       @default(false)
+  buddyConfirmed            Boolean       @default(false)
+  sharedWithContactIds      String[]      @default([])
+  lastActivityCheckInAt     DateTime?
+  cancellationReason        String?
+  cancellationPolicyApplied String?
+  cancelledById             String?
+  noShowReportedById        String?
+  disputeStatus             DisputeStatus @default(NONE)
+  disputeNotes              String?
+  disputeResolvedById       String?
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+
+  traveller User             @relation("TravellerBookings", fields: [travellerId], references: [id])
+  buddy     User             @relation("BuddyBookings", fields: [buddyId], references: [id])
+  messages  BookingMessage[]
+  reviews   BuddyReview[]
+
+  @@index([travellerId, status])
+  @@index([buddyId, status])
+  @@index([disputeStatus])
+  @@index([travellerId, createdAt])
+  @@index([buddyId, createdAt])
+  @@index([createdAt])
+}
+
+model BookingMessage {
+  id                String   @id @default(uuid())
+  bookingId         String
+  senderId          String
+  clientMessageId   String?
+  body              String
+  maskedPhoneNotice Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  booking BuddyBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  sender  User         @relation(fields: [senderId], references: [id])
+
+  @@unique([bookingId, senderId, clientMessageId])
+  @@index([bookingId, createdAt])
+}
+
+model BuddyReview {
+  id          String   @id @default(uuid())
+  bookingId   String
+  reviewerId  String
+  buddyUserId String
+  rating      Int
+  safetyScore Int      @default(5)
+  comment     String?
+  createdAt   DateTime @default(now())
+
+  booking   BuddyBooking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  reviewer  User         @relation("ReviewsWritten", fields: [reviewerId], references: [id])
+  buddyUser User         @relation("ReviewsReceived", fields: [buddyUserId], references: [id])
+
+  @@unique([bookingId, reviewerId])
+}
+
+model UserFavourite {
+  id           String   @id @default(uuid())
+  userId       String
+  targetUserId String
+  createdAt    DateTime @default(now())
+
+  user       User @relation("FavouritesGiven", fields: [userId], references: [id], onDelete: Cascade)
+  targetUser User @relation("FavouritesReceived", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, targetUserId])
+}
+
+model UserBlockReport {
+  id           String           @id @default(uuid())
+  reporterId   String
+  targetUserId String
+  actionType   SafetyActionType
+  reason       String
+  details      String?
+  status       ReportStatus     @default(OPEN)
+  adminNotes   String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  reporter   User @relation("SafetyReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetUser User @relation("SafetyTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  @@index([reporterId, targetUserId])
+  @@index([actionType, status])
+  @@index([status, createdAt])
+}
+
+model Trip {
+  id                   String     @id @default(uuid())
+  userId               String
+  title                String
+  startingLocation     String?
+  destinationCity      String
+  region               String     @default("Kerala")
+  startDate            DateTime
+  endDate              DateTime
+  accommodationJson    Json?
+  transportJson        Json?
+  notes                String?
+  sharedWithContactIds String[]   @default([])
+  status               TripStatus @default(PLANNED)
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
+  user           User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stops          TripStop[]
+  checkIns       JourneyCheckIn[]
+  locationShares LocationShareSession[]
+  sosIncidents   SosIncident[]
+
+  @@index([userId, status])
+  @@index([destinationCity])
+  @@index([userId, startDate])
+}
+
+model TripStop {
+  id          String    @id @default(uuid())
+  tripId      String
+  title       String
+  stopType    String
+  scheduledAt DateTime?
+  latitude    Float?
+  longitude   Float?
+  address     String?
+  notes       String?
+  sortOrder   Int       @default(0)
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, sortOrder])
+}
+
+model JourneyCheckIn {
+  id           String        @id @default(uuid())
+  tripId       String
+  userId       String
+  title        String
+  scheduledAt  DateTime
+  graceMinutes Int           @default(20)
+  status       CheckInStatus @default(SCHEDULED)
+  isManual     Boolean       @default(false)
+  remindedAt   DateTime?
+  confirmedAt  DateTime?
+  escalatedAt  DateTime?
+  notes        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([scheduledAt])
+}
+
+model TrustedContact {
+  id                    String   @id @default(uuid())
+  userId                String
+  name                  String
+  relationship          String
+  phone                 String
+  email                 String?
+  canReceiveTripUpdates Boolean  @default(false)
+  canViewLocation       Boolean  @default(false)
+  canReceiveCheckIns    Boolean  @default(true)
+  canReceiveSos         Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, createdAt])
+}
+
+model LocationShareSession {
+  id                 String              @id @default(uuid())
+  userId             String
+  tripId             String?
+  shareToken         String              @unique
+  label              String              @default("Live Journey Share")
+  status             LocationShareStatus @default(ACTIVE)
+  shareTripContext   Boolean             @default(false)
+  expiresAt          DateTime
+  lastLatitude       Float?
+  lastLongitude      Float?
+  lastAccuracyMeters Float?
+  lastUpdatedAt      DateTime?
+  allowedContactIds  String[]            @default([])
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trip Trip? @relation(fields: [tripId], references: [id])
+
+  @@index([userId, status])
+  @@index([shareToken])
+}
+
+model SafeHaven {
+  id                        String                  @id @default(uuid())
+  partnerUserId             String
+  name                      String
+  category                  SafeHavenCategory
+  description               String?
+  logoUrl                   String?
+  address                   String
+  city                      String
+  latitude                  Float
+  longitude                 Float
+  phone                     String
+  contactEmail              String?
+  responsiblePersonName     String?
+  responsiblePersonPhone    String?
+  operatingHoursJson        Json
+  assistanceServices        String[]
+  assistanceCommitments     String?
+  licenceNumber             String
+  verificationDocumentsJson Json?
+  partnershipAgreementJson  Json?
+  agreementAcceptedAt       DateTime?
+  approvalStatus            SafeHavenApprovalStatus @default(PENDING)
+  verifiedBadge             Boolean                 @default(false)
+  isDemoData                Boolean                 @default(false)
+  isActive                  Boolean                 @default(true)
+  approvalNotes             String?
+  approvedAt                DateTime?
+  lastRecheckedAt           DateTime?
+  nextRecheckDueAt          DateTime?
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
+
+  partnerUser User              @relation(fields: [partnerUserId], references: [id])
+  reports     SafeHavenReport[]
+
+  @@index([city, approvalStatus, isActive])
+  @@index([category])
+  @@index([approvalStatus, verifiedBadge, isActive, name])
+  @@index([isDemoData, isActive, name])
+}
+
+model SafeHavenReport {
+  id          String       @id @default(uuid())
+  safeHavenId String
+  reporterId  String
+  reason      String
+  details     String?
+  status      ReportStatus @default(OPEN)
+  adminNotes  String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  safeHaven SafeHaven @relation(fields: [safeHavenId], references: [id], onDelete: Cascade)
+  reporter  User      @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@index([safeHavenId, status])
+  @@index([status, createdAt])
+}
+
+model SosIncident {
+  id                      String    @id @default(uuid())
+  userId                  String
+  tripId                  String?
+  status                  SosStatus @default(TRIGGERED)
+  latitude                Float?
+  longitude               Float?
+  message                 String?
+  triggeredAt             DateTime  @default(now())
+  cancelledAsAccidentalAt DateTime?
+  escalatedToSecondaryAt  DateTime?
+  resolvedAt              DateTime?
+  updatedAt               DateTime  @updatedAt
+
+  user       User               @relation("UserSosIncidents", fields: [userId], references: [id])
+  trip       Trip?              @relation(fields: [tripId], references: [id])
+  deliveries SosAlertDelivery[]
+
+  @@index([userId, status])
+  @@index([status, triggeredAt])
+  @@index([triggeredAt])
+}
+
+model SosAlertDelivery {
+  id             String            @id @default(uuid())
+  incidentId     String
+  recipientType  String
+  recipientId    String?
+  recipientLabel String
+  channel        String
+  deliveryStatus SosDeliveryStatus @default(SENT)
+  sentAt         DateTime          @default(now())
+  deliveredAt    DateTime?
+  acknowledgedAt DateTime?
+
+  incident SosIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId])
+}
+
+model TravelDocument {
+  id               String       @id @default(uuid())
+  userId           String
+  documentType     DocumentType
+  title            String
+  originalFilename String?
+  storageProvider  String       @default("ENCRYPTED_LOCAL")
+  storagePath      String
+  encryptedDek     String
+  iv               String
+  authTag          String?
+  mimeType         String
+  fileSizeBytes    Int          @default(0)
+  expiresAt        DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, documentType])
+  @@index([userId, createdAt])
+}
+
+model Notification {
+  id           String           @id @default(uuid())
+  userId       String
+  type         NotificationType
+  title        String
+  body         String
+  metadataJson Json?
+  isRead       Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt])
+}
+
+model PlatformSetting {
+  key         String   @id
+  valueJson   Json
+  description String?
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  actorId     String?
+  action      String
+  targetType  String
+  targetId    String?
+  detailsJson Json?
+  createdAt   DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id])
+
+  @@index([action, createdAt])
+  @@index([targetType, createdAt])
+  @@index([createdAt])
+}
+
+model IdempotencyRecord {
+  id           String   @id @default(uuid())
+  userId       String
+  scope        String
+  key          String
+  requestHash  String?
+  statusCode   Int      @default(200)
+  responseJson Json
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+
+  @@unique([userId, scope, key])
+  @@index([expiresAt])
+}

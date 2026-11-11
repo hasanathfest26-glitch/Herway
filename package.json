@@ -1,0 +1,15 @@
+{
+  "name": "herway-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:backend": "npm --prefix backend run start:dev",
+    "dev:admin": "npm --prefix admin run dev",
+    "dev:mobile": "npm --prefix mobile run web",
+    "build:backend": "npm --prefix backend run vercel-build",
+    "build:admin": "npm --prefix admin run build",
+    "build:mobile": "npm --prefix mobile run build:web",
+    "verify:tokens": "node shared/sync-tokens.mjs --check",
+    "typecheck": "npm run verify:tokens && npm --prefix mobile run typecheck && npx --prefix admin tsc --noEmit && npm --prefix backend run build"
+  }
+}

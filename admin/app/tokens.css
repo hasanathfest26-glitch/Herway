@@ -1,0 +1,64 @@
+/* AUTO-GENERATED FROM shared/design-tokens.json — DO NOT EDIT MANUALLY */
+:root {
+  /* Brand & Semantic Colors */
+  --hw-primary: #00B6C7;
+  --hw-primary-dark: #0099A8;
+  --hw-primary-soft: #C5EFF2;
+  --hw-mint-top: #D3F3F5;
+  --hw-mint-mid: #E9F7F7;
+
+  --hw-bg: #FAF9F4;
+  --hw-surface: #FFFFFF;
+  --hw-surface-subtle: #F5F4EE;
+  --hw-ink: #131A20;
+  --hw-text-secondary: #525D66;
+  --hw-text-muted: #646F78;
+  --hw-placeholder: #768089;
+
+  --hw-border: #E2E6E9;
+  --hw-border-input: #E5E4DD;
+  --hw-border-subtle: #ECEEF0;
+
+  --hw-success: #059669;
+  --hw-success-soft: #ECFDF5;
+  --hw-success-border: #A7F3D0;
+  --hw-success-text: #065F46;
+
+  --hw-warning: #D97706;
+  --hw-warning-soft: #FEF3C7;
+  --hw-warning-border: #FCD34D;
+  --hw-warning-text: #92400E;
+
+  --hw-danger: #DC2626;
+  --hw-danger-soft: #FEE2E2;
+  --hw-danger-border: #FECACA;
+  --hw-danger-text: #991B1B;
+
+  /* Spacing Scale: 4, 8, 12, 16, 24, 32, 40, 48, 64px */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+
+  /* Component Dimensions & Radii */
+  --h-btn-primary: 48px;
+  --h-btn-secondary: 44px;
+  --h-btn-small: 36px;
+  --h-input: 50px;
+  --h-navbar: 68px;
+  --max-content-width: 1400px;
+
+  --r-card: 20px;
+  --r-input: 12px;
+  --r-btn: 12px;
+  --r-pill: 999px;
+
+  /* Interaction States */
+  --hw-disabled-opacity: 0.55;
+  --hw-pressed-opacity: 0.88;
+}

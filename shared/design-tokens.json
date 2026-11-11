@@ -1,0 +1,131 @@
+{
+  "brand": {
+    "name": "Herway",
+    "identity": "Mint-Teal-Cream"
+  },
+  "colors": {
+    "teal": "#00B6C7",
+    "tealDark": "#0099A8",
+    "tealWordmark": "#33C6D4",
+    "tealSoft": "#C5EFF2",
+    "tealGlow": "#44CDD2",
+    "mintTop": "#D3F3F5",
+    "mintMid": "#E9F7F7",
+    "creamBg": "#FAF9F4",
+    "inputBg": "#F5F4EE",
+    "inputBorder": "#E5E4DD",
+    "pillBorder": "#E2E6E9",
+    "white": "#FFFFFF",
+    "ink": "#131A20",
+    "muted": "#646F78",
+    "placeholder": "#768089",
+    "dotInactive": "#D5DCDF",
+
+    "primary": "#00B6C7",
+    "primaryDark": "#0099A8",
+    "primarySoft": "#C5EFF2",
+    "secondary": "#131A20",
+    "secondarySoft": "#E9F7F7",
+    "background": "#FAF9F4",
+    "surface": "#FFFFFF",
+    "surfaceSubtle": "#F5F4EE",
+    "surfaceMint": "#D3F3F5",
+    "border": "#E2E6E9",
+    "borderSubtle": "#ECEEF0",
+    "borderStrong": "#CFD6DC",
+    "text": "#131A20",
+    "textSecondary": "#525D66",
+    "textMuted": "#646F78",
+    "overlay": "rgba(19, 26, 32, 0.48)",
+
+    "safe": "#059669",
+    "safeSoft": "#ECFDF5",
+    "success": "#059669",
+    "successSoft": "#ECFDF5",
+    "successBorder": "#A7F3D0",
+    "successText": "#065F46",
+
+    "warning": "#D97706",
+    "warningSoft": "#FEF3C7",
+    "warningBorder": "#FCD34D",
+    "warningText": "#92400E",
+
+    "danger": "#DC2626",
+    "dangerSoft": "#FEE2E2",
+    "dangerBorder": "#FECACA",
+    "dangerText": "#991B1B"
+  },
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "xxl": 32,
+    "xxxl": 40,
+    "section": 48,
+    "hero": 64
+  },
+  "sizes": {
+    "buttonPrimary": 48,
+    "buttonSecondary": 44,
+    "buttonSmall": 36,
+    "inputHeight": 50,
+    "inputMinHeight": 48,
+    "inputMaxHeight": 52,
+    "touchTargetMin": 44,
+    "borderWidth": 1,
+    "iconSm": 16,
+    "iconMd": 20,
+    "iconLg": 24,
+    "navbarHeight": 68,
+    "maxContentWidth": 1400
+  },
+  "radii": {
+    "sm": 8,
+    "input": 12,
+    "button": 12,
+    "card": 20,
+    "modal": 20,
+    "sheet": 20,
+    "pill": 999
+  },
+  "breakpoints": {
+    "smallMobileMax": 374,
+    "mobileMin": 375,
+    "mobileMax": 767,
+    "tabletMin": 768,
+    "tabletMax": 1023,
+    "laptopMin": 1024,
+    "laptopMax": 1279,
+    "desktopMin": 1280,
+    "desktopMax": 1599,
+    "largeDesktopMin": 1600
+  },
+  "typography": {
+    "desktop": {
+      "pageHeading": { "fontSize": 32, "lineHeight": 40, "fontWeight": "800", "letterSpacing": -0.6 },
+      "sectionHeading": { "fontSize": 22, "lineHeight": 28, "fontWeight": "800", "letterSpacing": -0.3 },
+      "cardHeading": { "fontSize": 18, "lineHeight": 24, "fontWeight": "700", "letterSpacing": -0.2 },
+      "body": { "fontSize": 16, "lineHeight": 24, "fontWeight": "400" },
+      "bodyMedium": { "fontSize": 16, "lineHeight": 24, "fontWeight": "500" },
+      "secondary": { "fontSize": 14, "lineHeight": 20, "fontWeight": "500" },
+      "label": { "fontSize": 14, "lineHeight": 18, "fontWeight": "600" }
+    },
+    "mobile": {
+      "pageHeading": { "fontSize": 26, "lineHeight": 32, "fontWeight": "800", "letterSpacing": -0.4 },
+      "sectionHeading": { "fontSize": 20, "lineHeight": 26, "fontWeight": "800", "letterSpacing": -0.2 },
+      "cardHeading": { "fontSize": 17, "lineHeight": 23, "fontWeight": "700", "letterSpacing": -0.2 },
+      "body": { "fontSize": 15, "lineHeight": 22, "fontWeight": "400" },
+      "bodyMedium": { "fontSize": 15, "lineHeight": 22, "fontWeight": "500" },
+      "secondary": { "fontSize": 13, "lineHeight": 19, "fontWeight": "500" },
+      "label": { "fontSize": 13, "lineHeight": 18, "fontWeight": "600" }
+    }
+  },
+  "states": {
+    "disabledOpacity": 0.55,
+    "pressedOpacity": 0.88,
+    "pressedScale": 0.97,
+    "focusRingWidth": 2
+  }
+}

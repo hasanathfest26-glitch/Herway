@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import './tokens.css';
+
+:root {
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --dur-fast: 150ms;
+  --dur-base: 260ms;
+  --dur-reveal: 420ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: var(--hw-bg);
+  color: var(--hw-ink);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+::selection {
+  background: var(--hw-primary-soft);
+  color: var(--hw-ink);
+}
+
+/* Accessible focus ring (keyboard navigation) */
+*:focus-visible {
+  outline: 2px solid var(--hw-primary-dark);
+  outline-offset: 2px;
+}
+
+/* Masking container for clean text/image reveals */
+.herway-mask {
+  overflow: hidden;
+}
+
+/* Hardware-accelerated reveal (transform + opacity only) */
+.herway-reveal {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition:
+    transform var(--dur-reveal) var(--ease-out-expo),
+    opacity var(--dur-reveal) var(--ease-out-expo);
+  will-change: transform, opacity;
+}
+
+.herway-reveal[data-visible="true"] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  will-change: auto;
+}
+
+.herway-interactive {
+  transition:
+    transform var(--dur-base) var(--ease-out-expo),
+    box-shadow var(--dur-base) var(--ease-out-expo),
+    border-color var(--dur-fast) ease;
+}
+
+.herway-interactive:hover {
+  transform: translate3d(0, -2px, 0);
+}
+
+.herway-interactive:active {
+  transform: scale3d(0.985, 0.985, 1);
+}
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+a[href] {
+  cursor: pointer;
+  transition:
+    transform 120ms var(--ease-out-expo),
+    opacity 120ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+button:not(:disabled):active,
+[role="button"]:not([aria-disabled="true"]):active {
+  transform: scale3d(0.975, 0.975, 1);
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .herway-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .herway-interactive:hover,
+  .herway-interactive:active {
+    transform: none !important;
+  }
+}
